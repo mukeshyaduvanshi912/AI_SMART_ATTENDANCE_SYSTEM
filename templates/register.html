@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Register — AI Smart Attendance System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="eyebrow">Enrollment</div>
+  <h1>Register a New Person</h1>
+  <p>This opens the webcam on the machine running this server and captures
+     ~100 face samples. Make sure the camera window has focus and good lighting.</p>
+</div>
+
+<div class="panel" style="max-width: 480px;">
+  <form method="POST" action="{{ url_for('register') }}" data-confirm-camera>
+    <label for="person_code">Person ID / Roll No. / Employee Code</label>
+    <input type="text" id="person_code" name="person_code" required placeholder="e.g. EMP1024">
+
+    <label for="name">Full Name</label>
+    <input type="text" id="name" name="name" required placeholder="e.g. Priya Sharma">
+
+    <button type="submit" class="btn">Start Face Capture</button>
+  </form>
+</div>
+
+<div class="panel">
+  <div class="panel-title">
+    Next Step
+    <form method="POST" action="{{ url_for('train') }}">
+      <button type="submit" class="btn btn-secondary">Train Model</button>
+    </form>
+  </div>
+  <p style="color: var(--text-dim); font-size: 14px;">
+    After capturing faces for everyone you want to register, click
+    <strong>Train Model</strong> to update the recognizer before running
+    live attendance scanning.
+  </p>
+</div>
+{% endblock %}

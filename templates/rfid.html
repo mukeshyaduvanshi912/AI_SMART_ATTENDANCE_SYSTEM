@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}RFID Scan — AI Smart Attendance System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="eyebrow">Card Scanning</div>
+  <h1>RFID Attendance</h1>
+  <p>Keep this page open and tap cards on the reader — most USB RFID readers
+     type the card ID automatically, so you don't need to click anything.</p>
+</div>
+
+<div class="panel" style="text-align:center; padding: 56px 28px;">
+  <div id="statusIcon" style="font-size: 48px; margin-bottom: 16px;">📶</div>
+  <div id="statusText" style="font-family: var(--mono); font-size: 16px; color: var(--text-dim);">
+    Waiting for a card...
+  </div>
+
+  <!-- This input stays focused at all times so a keyboard-emulation RFID
+       reader can "type" the card ID straight into it, then Enter submits. -->
+  <input type="text" id="rfidInput" autocomplete="off"
+         style="position:absolute; opacity:0; pointer-events:none;">
+</div>
+
+<div class="panel">
+  <div class="panel-title">Manual Entry (if your reader doesn't auto-focus)</div>
+  <form id="manualForm" style="display:flex; gap:10px;">
+    <input type="text" id="manualTag" placeholder="Type or paste card ID"
+           style="margin-bottom:0;">
+    <button type="submit" class="btn btn-secondary">Submit</button>
+  </form>
+</div>
+
+<script>
+  const rfidInput = document.getElementById('rfidInput');
+  const statusIcon = document.getElementById('statusIcon');
+  const statusText = document.getElementById('statusText');
+  const manualForm = document.getElementById('manualForm');
+  const manualTag = document.getElementById('manualTag');
+
+  function focusInput() {
+    rfidInput.focus();
+  }
+  focusInput();
+  document.addEventListener('click', focusInput);
+
+  async function submitTag(tag) {
+    if (!tag) return;
+    statusIcon.textContent = '⏳';
+    statusText.textContent = 'Checking card...';
+    statusText.style.color = 'var(--text-dim)';
+
+    try {
+      const res = await fetch("{{ url_for('rfid_scan') }}", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'rfid_tag=' + encodeURIComponent(tag)
+      });
+      const data = await res.json();
+
+      statusIcon.textContent = data.success ? '✅' : '❌';
+      statusText.textContent = data.message;
+      statusText.style.color = data.success ? 'var(--success)' : 'var(--danger)';
+    } catch (err) {
+      statusIcon.textContent = '❌';
+      statusText.textContent = 'Could not reach the server.';
+      statusText.style.color = 'var(--danger)';
+    }
+
+    setTimeout(() => {
+      statusIcon.textContent = '📶';
+      statusText.textContent = 'Waiting for a card...';
+      statusText.style.color = 'var(--text-dim)';
+    }, 4000);
+  }
+
+  rfidInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const tag = rfidInput.value.trim();
+      rfidInput.value = '';
+      submitTag(tag);
+    }
+  });
+
+  manualForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const tag = manualTag.value.trim();
+    manualTag.value = '';
+    submitTag(tag);
+  });
+</script>
+{% endblock %}

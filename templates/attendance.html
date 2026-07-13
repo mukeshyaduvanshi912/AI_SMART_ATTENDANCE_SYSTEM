@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Attendance — AI Smart Attendance System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="eyebrow">Live Scanning</div>
+  <h1>Attendance</h1>
+  <p>Run the scanner to recognize faces via the webcam and mark attendance automatically.</p>
+</div>
+
+<div class="panel">
+  <div class="panel-title">
+    Scanner
+    <form method="POST" action="{{ url_for('recognize') }}" data-confirm-camera>
+      <button type="submit" class="btn">Start Scan</button>
+    </form>
+  </div>
+  {% if marked %}
+    <p style="color: var(--success); font-family: var(--mono); font-size: 13px;">
+      Processed this session: {{ marked | join(', ') }}
+    </p>
+  {% else %}
+    <p style="color: var(--text-dim); font-size: 14px;">
+      Click "Start Scan" to open the camera window. First scan of the day marks
+      <strong>arrival</strong>; the next scan the same day marks <strong>departure</strong>.
+      Press Q in that window to stop.
+    </p>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <div class="panel-title">
+    Voice Assistant
+    <form method="POST" action="{{ url_for('voice_attendance') }}">
+      <button type="submit" class="btn btn-secondary">🎙️ Speak to Mark Attendance</button>
+    </form>
+  </div>
+  <p style="color: var(--text-dim); font-size: 14px;">
+    No camera needed — click the button, then say your full name or ID
+    clearly into the microphone when you hear the prompt. Requires an
+    internet connection and a working microphone on this machine.
+  </p>
+</div>
+
+<div class="panel">
+  <div class="panel-title">
+    Records
+    <div style="display:flex; gap:10px; align-items:center;">
+      <form method="GET" action="{{ url_for('attendance') }}" style="display:flex; gap:8px;">
+        <input type="text" name="date" value="{{ date_filter }}" placeholder="YYYY-MM-DD"
+               style="margin-bottom:0; padding:8px 10px; font-size:13px; width:150px;">
+        <button type="submit" class="btn btn-secondary" style="padding:8px 14px;">Filter</button>
+      </form>
+      <a href="{{ url_for('export_attendance_csv', date=date_filter) if date_filter else url_for('export_attendance_csv') }}"
+         class="btn btn-secondary" style="text-decoration:none; padding:8px 14px;">Export CSV</a>
+    </div>
+  </div>
+  {% if records %}
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Arrival</th>
+          <th>Departure</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td>{{ r.person_code }}</td>
+          <td>{{ r.name }}</td>
+          <td>{{ r.date }}</td>
+          <td><span class="badge">{{ r.time }}</span></td>
+          <td>
+            {% if r.time_out %}
+              <span class="badge">{{ r.time_out }}</span>
+            {% else %}
+              <span style="color: var(--text-dim); font-family: var(--mono); font-size: 12px;">—</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if r.is_late %}
+              <span class="badge" style="background: rgba(224,169,79,0.12); color: var(--warn);">Late</span>
+            {% else %}
+              <span class="badge" style="background: rgba(79,209,122,0.12); color: var(--success);">On Time</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="empty-state">No attendance records{% if date_filter %} for {{ date_filter }}{% endif %}.</div>
+  {% endif %}
+</div>
+{% endblock %}

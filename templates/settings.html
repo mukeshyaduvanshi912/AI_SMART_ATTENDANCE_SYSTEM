@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Settings — AI Smart Attendance System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="eyebrow">Configuration</div>
+  <h1>Settings</h1>
+  <p>Control how the console flags late arrivals.</p>
+</div>
+
+<div class="panel" style="max-width: 420px;">
+  <form method="POST" action="{{ url_for('settings') }}">
+    <label for="late_cutoff_time">Late Arrival Cutoff (24-hour time)</label>
+    <input type="text" id="late_cutoff_time" name="late_cutoff_time"
+           value="{{ late_cutoff }}" placeholder="09:30" pattern="^([01]\d|2[0-3]):([0-5]\d)$"
+           required>
+    <p style="color: var(--text-dim); font-size: 13px; margin-top: -12px; margin-bottom: 20px;">
+      Anyone marked present after this time is flagged as late on the
+      Attendance and Dashboard pages. Format: HH:MM, e.g. 09:30.
+    </p>
+    <button type="submit" class="btn">Save Settings</button>
+  </form>
+</div>
+{% endblock %}

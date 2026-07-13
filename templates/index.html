@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}AI Smart Attendance System — Home{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <div class="scanline"></div>
+  <h1>AI Smart Attendance System</h1>
+  <p>Register faces once, then let the scanner mark attendance automatically
+     every time someone steps in front of the camera.</p>
+  <a href="{{ url_for('login') }}" class="btn">Enter Console</a>
+</div>
+{% endblock %}

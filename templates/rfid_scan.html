@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}RFID Scan — Attendance Console{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="eyebrow">Card Scanning</div>
+  <h1>RFID Attendance</h1>
+  <p>Tap a linked card on the reader. It types the card ID below and
+     submits automatically — no need to click anything.</p>
+</div>
+
+<div class="panel" style="max-width: 480px;">
+  <form method="POST" action="{{ url_for('rfid_scan_page') }}" id="rfid-form">
+    <label for="rfid_tag">Card ID</label>
+    <input type="text" id="rfid_tag" name="rfid_tag" autofocus autocomplete="off"
+           placeholder="Waiting for scan...">
+    <button type="submit" class="btn" style="width:100%;">Submit Manually</button>
+  </form>
+
+  {% if last_result %}
+    <p style="margin-top: 16px; font-family: var(--mono); font-size: 13px;
+              color: {{ 'var(--danger)' if last_result.status == 'unknown' or last_result.status == 'already_done' else 'var(--success)' }};">
+      {% if last_result.status == 'unknown' %}
+        Unrecognized card: {{ last_result.tag }}
+      {% elif last_result.status == 'checked_in' %}
+        {{ last_result.name }} — arrival marked
+      {% elif last_result.status == 'checked_out' %}
+        {{ last_result.name }} — departure marked
+      {% elif last_result.status == 'already_done' %}
+        {{ last_result.name }} already completed attendance today
+      {% endif %}
+    </p>
+  {% endif %}
+</div>
+
+<script>
+  // Refocus the input after every page load so the next tap on the
+  // reader goes straight into the field without a manual click.
+  const input = document.getElementById('rfid_tag');
+  input.focus();
+
+  // Most HID readers send Enter after typing the ID, which submits
+  // the form naturally since it's the only input. This just guards
+  // against readers that don't send Enter by auto-submitting once
+  // enough characters have been typed and input pauses briefly.
+  let typingTimer;
+  input.addEventListener('input', () => {
+    clearTimeout(typingTimer);
+    if (input.value.length >= 6) {
+      typingTimer = setTimeout(() => {
+        document.getElementById('rfid-form').submit();
+      }, 300);
+    }
+  });
+</script>
+{% endblock %}

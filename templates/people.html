@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}People — AI Smart Attendance System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="eyebrow">Enrollment Management</div>
+  <h1>Registered People</h1>
+  <p>Rename or remove enrolled people, and link an RFID card as an
+     alternative to face scanning. Removing someone deletes their captured
+     face images and attendance history — retrain the model afterward.</p>
+</div>
+
+<div class="panel">
+  <div class="panel-title">
+    All People
+    <a href="{{ url_for('register') }}" class="btn btn-secondary" style="text-decoration:none;">+ Add Person</a>
+  </div>
+
+  {% if people %}
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>RFID Card</th>
+          <th style="width: 280px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in people %}
+        <tr>
+          <td><span class="badge">{{ p.person_code }}</span></td>
+          <td>{{ p.name }}</td>
+          <td>
+            {% if p.rfid_tag %}
+              <span class="badge" style="background: rgba(79,209,197,0.12); color: var(--accent);">{{ p.rfid_tag }}</span>
+            {% else %}
+              <span style="color: var(--text-dim); font-family: var(--mono); font-size: 12px;">Not linked</span>
+            {% endif %}
+          </td>
+          <td>
+            <form method="POST" action="{{ url_for('edit_person', person_id=p.id) }}"
+                  style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+              <input type="text" name="name" value="{{ p.name }}" required
+                     style="margin-bottom:0; padding:8px 10px; font-size:13px;">
+              <button type="submit" class="btn btn-secondary" style="padding:8px 14px;">Save</button>
+            </form>
+            <form method="POST" action="{{ url_for('assign_rfid', person_id=p.id) }}"
+                  style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+              <input type="text" name="rfid_tag" placeholder="Scan or type card ID"
+                     value="{{ p.rfid_tag or '' }}"
+                     style="margin-bottom:0; padding:8px 10px; font-size:13px;">
+              <button type="submit" class="btn btn-secondary" style="padding:8px 14px;">Link</button>
+            </form>
+            <form method="POST" action="{{ url_for('enroll_voice_route', person_id=p.id) }}"
+                  onsubmit="return confirm('This opens the microphone and records 3 short samples. Continue?');"
+                  style="margin-bottom:8px;">
+              <button type="submit" class="btn btn-secondary" style="padding:8px 14px;">🎙️ Enroll Voice</button>
+            </form>
+            <form method="POST" action="{{ url_for('delete_person', person_id=p.id) }}"
+                  onsubmit="return confirm('Remove {{ p.name }} and their attendance history? This cannot be undone.');">
+              <button type="submit" class="btn" style="background: var(--danger); padding:8px 14px;">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="empty-state">No one registered yet.</div>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <div class="panel-title">Linking a Card</div>
+  <p style="color: var(--text-dim); font-size: 14px;">
+    Click into the "Scan or type card ID" box next to a person, tap their
+    RFID card on the reader (it types the ID automatically), then click
+    <strong>Link</strong>. Each card can only be linked to one person.
+  </p>
+</div>
+{% endblock %}

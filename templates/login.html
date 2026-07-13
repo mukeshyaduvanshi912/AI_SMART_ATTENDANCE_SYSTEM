@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Login — AI Smart Attendance System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="eyebrow">Authentication</div>
+  <h1>Console Login</h1>
+  <p>Sign in to register faces, train the model, and review attendance.</p>
+</div>
+
+<div class="panel" style="max-width: 380px; margin: 0 auto;">
+  <form method="POST" action="{{ url_for('login') }}">
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" required autofocus>
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required>
+
+    <button type="submit" class="btn" style="width: 100%;">Sign In</button>
+  </form>
+</div>
+{% endblock %}
