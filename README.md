@@ -45,6 +45,32 @@ Built with **Flask (Python), OpenCV, and SQLite**, this system provides a flexib
 
 ---
 
+## 📸 Screenshots
+
+### 🏠 Home Page
+![Home](docs/home.png)
+
+### 🔐 Login Console
+![Login](docs/console-login.png)
+
+### 📊 Dashboard
+![Dashboard](docs/dashboard.png)
+
+### 🧠 Attendance System
+![Attendance](docs/attendance.png)
+
+### 👥 People Management
+![People](docs/people.png)
+
+### 📝 Registration Page
+![Register](docs/register.png)
+
+### 📡 RFID Module
+![RFID](docs/rfid.png)
+
+### ⚙️ Settings
+![Settings](docs/setting.png)
+
 ## 🏗️ Project Architecture
 
 ```
